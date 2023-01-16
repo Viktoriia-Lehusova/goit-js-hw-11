@@ -10,15 +10,3 @@ export async function fetchQuery(searchQuery, page) {
   console.log(data);
   return data;
 }
-
-// .then(resp => resp.json())
-// .then(data => {
-//   if (data.total === 0) {
-//     Notiflix.Notify.failure(
-//       'Sorry, there are no images matching your search query. Please try again.'
-//     );
-//   }
-//   page += 1;
-//   console.log(data);
-//   return data.hits;
-// });

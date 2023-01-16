@@ -1,6 +1,7 @@
 import Notiflix from 'notiflix';
 import './css/style.css';
 import { fetchQuery } from './fetchQuery';
+import { simpleLightbox } from './simpleLightBox';
 
 const searchForm = document.querySelector('.search-form');
 const gallery = document.querySelector('.gallery');
@@ -38,6 +39,7 @@ function onSearchForm(evt) {
         return;
       }
       createMarkup(data.hits);
+      simpleLightbox.refresh();
       successMessage(data);
       btnLoadMore.hidden = false;
 
@@ -55,6 +57,7 @@ function onLoadMore(evt) {
 
   fetchQuery(searchQuery, page).then(data => {
     createMarkup(data.hits);
+    simpleLightbox.refresh();
     warningMessage(data);
   });
 }
@@ -95,7 +98,7 @@ function createMarkup(hits) {
         comments,
         downloads,
       }) => `<div class="photo-card">
-  <img src="${webformatURL}" alt="${tags}" loading="lazy"  width = '350px' height = '250px'/>
+  <a class="gallery-link" href="${largeImageURL}"><img src="${webformatURL}" alt="${tags}" loading="lazy"  width = '350px' height = '250px'/></a>
   <div class="info">
     <p class="info-item">
       <b>Likes: ${likes}</b>

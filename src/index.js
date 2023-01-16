@@ -10,14 +10,13 @@ let page = 1;
 
 searchForm.addEventListener('submit', onSearchForm);
 btnLoadMore.addEventListener('click', onLoadMore);
-// btnLoadMore.hidden = true;
 
 function onSearchForm(evt) {
   evt.preventDefault();
 
   clearPage();
   searchQuery = evt.currentTarget.elements.searchQuery.value;
-  // btnLoadMore.hidden = true;
+  btnLoadMore.classList.add('hidden');
 
   resetPage();
   fetchQuery(searchQuery, page)
@@ -27,10 +26,10 @@ function onSearchForm(evt) {
           'Sorry, there are no images matching your search query. Please try again.'
         );
         btnLoadMore.classList.add('hidden');
-      } else {
-        createMarkup(data.hits);
-        btnLoadMore.classList.remove('hidden');
+        return;
       }
+      createMarkup(data.hits);
+      btnLoadMore.classList.remove('hidden');
     })
     .catch(err => {
       Notiflix.Notify.failure(

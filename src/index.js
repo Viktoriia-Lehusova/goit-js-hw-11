@@ -10,46 +10,67 @@ let page = 1;
 
 searchForm.addEventListener('submit', onSearchForm);
 btnLoadMore.addEventListener('click', onLoadMore);
-btnLoadMore.hidden = true;
+// btnLoadMore.hidden = true;
 
 function onSearchForm(evt) {
   evt.preventDefault();
 
   clearPage();
   searchQuery = evt.currentTarget.elements.searchQuery.value;
-  console.log(searchQuery);
+  // btnLoadMore.hidden = true;
 
   resetPage();
-  fetchQuery(searchQuery, page).then(hits => createMarkup(hits));
-
-  btnLoadMore.hidden = false;
+  fetchQuery(searchQuery, page)
+    .then(data => {
+      if (data.hits.length === 0) {
+        Notiflix.Notify.failure(
+          'Sorry, there are no images matching your search query. Please try again.'
+        );
+        btnLoadMore.classList.add('hidden');
+      } else {
+        createMarkup(data.hits);
+        btnLoadMore.classList.remove('hidden');
+      }
+    })
+    .catch(err => {
+      Notiflix.Notify.failure(
+        'Sorry, there are no images matching your search query. Please try again.'
+      );
+    });
 }
 
 function onLoadMore(evt) {
   page += 1;
 
-  fetchQuery(searchQuery, page).then(hits => createMarkup(hits));
+  fetchQuery(searchQuery, page).then(data => {
+    createMarkup(data.hits);
+    warningMessage(data);
+  });
+}
+function warningMessage(data) {
+  const perPage = 40;
 
-  // const pages = Math.ceil(data.total / perPage);
-  // if (page === pages) {
-  //   Notiflix.Notify.failure(
-  //     'Were sorry, but youve reached the end of search results.'
-  //   );
-  //   btnLoadMore.hidden = true;
-  // }
+  const pages = Math.ceil(data.totalHits / perPage);
+  if (page === pages) {
+    Notiflix.Notify.failure(
+      'We are sorry, but you have reached the end of search results.'
+    );
+    btnLoadMore.hidden = true;
+  }
 }
 
 function createMarkup(hits) {
-  const markup = hits.map(
-    ({
-      webformatURL,
-      largeImageURL,
-      tags,
-      likes,
-      views,
-      comments,
-      downloads,
-    }) => `<div class="photo-card">
+  const markup = hits
+    .map(
+      ({
+        webformatURL,
+        largeImageURL,
+        tags,
+        likes,
+        views,
+        comments,
+        downloads,
+      }) => `<div class="photo-card">
   <img src="${webformatURL}" alt="${tags}" loading="lazy"  width = '350px' height = '250px'/>
   <div class="info">
     <p class="info-item">
@@ -66,7 +87,8 @@ function createMarkup(hits) {
     </p>
   </div>
 </div>`
-  );
+    )
+    .join('');
   gallery.insertAdjacentHTML('beforeend', markup);
 }
 
@@ -77,29 +99,3 @@ function resetPage() {
 function clearPage() {
   gallery.innerHTML = '';
 }
-
-// async function fetchQuery(searchQuery) {
-//   try {
-//     const response = await axios.get(
-//       `https://pixabay.com/api/?key=32843972-0ea5b72fd9aa7da412e1885f6&q=${searchQuery}&image_type=photo&orientation=horizontal&safesearch=true`
-//     );
-//     console.log(response);
-//   } catch (error) {
-//     console.error(error);
-//   }
-// }
-// function fetchQuery(searchQuery) {
-//   const url = `https://pixabay.com/api/?key=${KEY}&q=${searchQuery}&image_type=photo&orientation=horizontal&safesearch=true&page=${page}&per_page=40`;
-//   return fetch(url)
-//     .then(resp => resp.json())
-//     .then(data => {
-//       if (data.total === 0) {
-//         Notiflix.Notify.failure(
-//           'Sorry, there are no images matching your search query. Please try again.'
-//         );
-//       }
-//       page += 1;
-//       console.log(data);
-//       return data.hits;
-//     });
-// }
